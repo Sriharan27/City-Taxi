@@ -1,0 +1,80 @@
+﻿@model List<Vehicle>
+@{
+    Layout = "~/Views/Driver/DriverLayout.cshtml";
+}
+<head>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+
+</head>
+<h2 class="text-center mb-5">Manage Vehicles</h2>
+
+<div class="row mb-5">
+    <div class="col">
+        <a class="btn btn-primary" asp-controller="Driver" asp-action="AddVehicle">Add New Vehicle</a>
+    </div>
+</div>
+
+<table id="driversTable" class="table">
+    <thead>
+        <tr>
+            <th>Vehicle Make</th>
+            <th>Vehicle Model</th>
+            <th>VehicleType</th>
+            <th>Vehicle Number Plate</th>
+            <th>Date Registered</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var Vehicle in Model)
+            {
+                <tr>
+                    <td>@Vehicle.VehicleMake</td>
+                    <td>@Vehicle.VehicleModel</td>
+                    <td>@Vehicle.VehicleType.VehicleType</td>
+                    <td>@Vehicle.VehicleNumberPlate</td>
+                    <td>@Vehicle.DateAdded.ToString("dd/MM/yyyy")</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn  btn-sm" asp-controller="Driver" asp-action="EditVehicle" asp-route-id="@Vehicle.VehicleID"><i class="bi bi-pencil-square"></i></a>
+                        <form method="post" asp-controller="Driver" asp-action="DeleteVehicle" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this Vehicle?');">
+                            <input type="hidden" name="vehicleId" value="@Vehicle.VehicleID" />
+                            <button type="submit" class="btn  btn-sm"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function () {
+        $('#driversTable').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true
+        });
+    });
+</script>

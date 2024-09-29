@@ -1,0 +1,121 @@
+﻿@model SystemUser
+@{
+    ViewData["Title"] = "Edit User";
+}
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="title-2 mb-4">Edit User</h2>
+                        <hr />
+                        <form method="post" asp-action="UpdateUser" enctype="multipart/form-data">
+                            <input class="form-control" asp-for="SystemUserID" required hidden readonly>
+                           <div class="row">
+                                <div class="col-md-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="FirstName" class="form-label">First Name</label>
+                                        <input asp-for="FirstName" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="LastName" class="form-label">Last Name</label>
+                                        <input asp-for="LastName" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+94</span>
+                                    <input asp-for="PhoneNumber" class="form-control" required id="phoneNumber" maxlength="9" placeholder="Enter phone number">
+                                    <button id="verifyBtn" type="button" class="btn btn-secondary" style="background-color: orange" onclick="sendOtp()">Verify</button>
+
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">User Type</label>
+                                <select name="usertype" id="usertype" class="form-control" required>
+                                    <option value="Empty">Leave Empty If No Change</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="TeleOperator">Telephone Operator</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Registered Date</label>
+                                <input value="@ViewData["DateRegistered"]" class="form-control" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input name="username" id="username" class="form-control" value="@Model.Login.Username" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input name="password" type="password" class="form-control" placeholder="Leave this empty if no change">
+                            </div>
+                            <div class="d-flex justify-content-evenly">
+                                <button type="submit" class="btn btn-primary flex-grow-1" style="margin-left:0px; margin-right:7px">Edit</button>
+                                <a class="btn btn-danger flex-grow-1" asp-controller="Admin" asp-action="ManageUser" style="margin-right:0; margin-left:7px">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Clear the username when phone number is edited
+        document.getElementById('phoneNumber').addEventListener('input', function () {
+            document.getElementById('username').value = '';
+            document.getElementById('username').placeholder = 'Verify mobile number to get username';
+        });
+        function sendOtp() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            fetch('/Home/SendOtp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phoneNumber: phoneNumber })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const otp = prompt("Enter OTP sent to your phone:");
+                        verifyOtp(otp, phoneNumber);
+                    } else {
+                        // Display the error message
+                        alert(data.errorMessage); // Show error message to the user
+                    }
+                });
+        }
+        function verifyOtp(otp, phoneNumber) {
+            fetch('/Home/VerifyOtp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp, phoneNumber: phoneNumber })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('username').value = "+94" + phoneNumber;
+                        document.getElementById('verifyBtn').textContent = 'Verified'
+                        document.getElementById('verifyBtn').style.backgroundColor = 'green';
+                        document.getElementById('verifyBtn').disabled = true;
+                    } else {
+                        alert("Invalid OTP. Please try again.");
+                    }
+                });
+        }
+    </script>
+</body>

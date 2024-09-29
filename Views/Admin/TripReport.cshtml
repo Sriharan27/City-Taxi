@@ -1,0 +1,63 @@
+﻿@model List<Reservation>
+@{
+    var userRole = Context.Session.GetString("UserType");
+    if (userRole == "Admin")
+    {
+        Layout = "~/Views/Admin/AdminLayout.cshtml";
+    }
+    else if (userRole == "Passenger")
+    {
+        Layout = "~/Views/Passenger/PassengerLayout.cshtml";
+    }
+    else if (userRole == "Driver")
+    {
+        Layout = "~/Views/Driver/DriverLayout.cshtml";
+    }
+}
+<h2 class="text-center mb-5">Trip Report</h2>
+
+<table id="driversTable" class="table">
+    <thead>
+        <tr>
+            <th>Reservation ID</th>
+            <th>Driver Name</th>
+            <th>Passenger Name</th>
+            <th>Reservation Time</th>
+            <th>Pickup Time</th>
+            <th>Dropoff Time</th>
+            <th>Trip Distance</th>
+            <th>Trip Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Reservation in Model)
+        {
+            <tr>
+                <td>@Reservation.ReservationID</td>
+                <td>@($"{Reservation.Driver.FirstName} {Reservation.Driver.LastName}")</td>
+                <td>@($"{Reservation.Passenger.FirstName} {Reservation.Passenger.LastName}")</td>
+                <td>@Reservation.ReservationTime.ToString("dd/MM/yyyy")</td>
+                <td>@(Reservation.PickupTime.HasValue ? Reservation.PickupTime.Value.ToString("dd/MM/yyyy") : "")</td>
+                <td>@(Reservation.DropoffTime.HasValue ? Reservation.DropoffTime.Value.ToString("dd/MM/yyyy") : "")</td>
+                <td>@Reservation.TripDistance</td>
+                <td>@Reservation.TripPrice.ToString("F2")</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-primary btn-sm" asp-controller="Admin" asp-action="RideDetailRV" asp-route-reservationId="@Reservation.ReservationID">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function () {
+        $('#driversTable').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true
+        });
+    });
+</script>

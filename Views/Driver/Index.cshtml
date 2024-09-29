@@ -1,0 +1,79 @@
+﻿@model City_Taxi.Models.DriverStatus
+@{
+    Layout = "~/Views/Driver/DriverLayout.cshtml";
+    var driverId = Context.Session.GetInt32("UserID");
+}
+
+<div id="overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px;">
+        <h3>New Reservation!</h3>
+        <h5 id="Reservation-ID"></h5>
+        <h6 id="Trip-Distance"></h6>
+        <h6 id="Trip-Fare"></h6>
+        <button id="accept-button" class="btn btn-success">Accept</button>
+        <button id="reject-button" class="btn btn-danger">Reject</button>
+    </div>
+</div>
+
+<h2>Welcome, @Model.Driver.FirstName!</h2>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Column: Map Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header p-0">
+                    <h4>Current Location</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 400px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Driver Info Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body">
+                    <div id="passenger-info">
+                        <h4 id="passenger-heading" style="display:none">Passenger Information</h4>
+                        <hr />
+                        <p id="passenger-phone"></p>
+                        <p id="trip-distance"></p>
+                        <p id="trip-fare"></p>
+
+                        <a class="direct-button" id="directions-link-pickup" href="#" target="_blank" style="display:none;">Get Directions for Pick-up</a>
+                        <br />
+                        <a class="direct-button" id="directions-link-dropoff" href="#" target="_blank" style="display:none;">Get Directions for Drop-off</a>
+                        <br /><br />
+                        <button id="start-trip" class="btn btn-success mb-3" style="display:none; width: 100%;">Start Trip</button>
+                        <button id="end-trip" class="btn btn-warning" style="display:none; width: 100%;">End Trip</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="trip-summary-popup" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px; min-width: 450px;">
+        <h3 class="text-center">Trip Summary</h3>
+        <p><strong>Pick Up Time: </strong> <span id="pickup-time"></span></p>
+        <p><strong>Drop Off Time:</strong> <span id="dropoff-time"></span></p>
+        <p><strong>Total Distance:</strong><span id="summary-distance"></span> Km</p>
+        <p><strong>Total Fare:</strong> Rs <span id="summary-fare"></span></p>
+        <p><strong>Payment Type:</strong> <span id="summary-payment-type"></span></p>
+        <button id="close-summary" class="btn btn-primary" style="width:100%;">OK</button>
+    </div>
+</div>
+
+<input type="hidden" id="driver-status-id" value="@Model.DriverStatusID" />
+<input type="hidden" id="user-id" value="@driverId" />
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["Key"]&libraries=places,geometry&callback=initMap" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+    <script src="~/js/driverRide.js"></script>
+}

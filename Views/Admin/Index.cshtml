@@ -1,0 +1,91 @@
+﻿@{
+    Layout = "~/Views/Admin/AdminLayout.cshtml";
+    var DriverCount = ViewData["DriverCount"] ?? 0;
+    var PassengerCount = ViewData["PassengerCount"] ?? 0;
+    var Trips = ViewData["TripCount"] ?? 0;
+    var Ratings = ViewData["Ratings"] ?? 0;
+}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Card 1 -->
+        <div class="col-12 col-sm-6 col-md-3 mb-2">
+            <div class="info-box bg-dark text-white d-flex align-items-center">
+                <!-- Image on the left -->
+                <span class="info-box-icon bg-info elevation-1 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <img src="~/images/Driver.png" alt="icon" style="width: 40px; height: 40px;">
+                </span>
+
+                <!-- Content on the right -->
+                <div class="info-box-content ms-2" style="padding-left:5px">
+                    <span class="info-box-text d-block">Drivers</span>
+                    <span class="info-box-number d-block">
+                        @DriverCount
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-12 col-sm-6 col-md-3 mb-2">
+            <div class="info-box bg-dark text-white d-flex align-items-center">
+                <!-- Image on the left -->
+                <span class="info-box-icon bg-danger elevation-1 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <img src="~/images/Passenger.png" alt="icon" style="width: 40px; height: 40px;">
+                </span>
+
+                <!-- Content on the right -->
+                <div class="info-box-content ms-2" style="padding-left:5px">
+                    <span class="info-box-text d-block">Passengers</span>
+                    <span class="info-box-number d-block">
+                        @PassengerCount
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Fix for small devices -->
+        <div class="clearfix hidden-md-up"></div>
+
+        <!-- Card 3 -->
+        <div class="col-12 col-sm-6 col-md-3 mb-2">
+            <div class="info-box bg-dark text-white d-flex align-items-center">
+                <!-- Image on the left -->
+                <span class="info-box-icon bg-warning elevation-1 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <img src="~/images/Trips.png" alt="icon" style="width: 40px; height: 40px;">
+                </span>
+
+                <!-- Content on the right -->
+                <div class="info-box-content ms-2" style="padding-left:5px">
+                    <span class="info-box-text d-block">Trips</span>
+                    <span class="info-box-number d-block">
+                        @Trips
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-12 col-sm-6 col-md-3 mb-2">
+            <div class="info-box bg-dark text-white d-flex align-items-center">
+                <!-- Image on the left -->
+                <span class="info-box-icon bg-success elevation-1 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <img src="~/images/Rating.png" alt="icon" style="width: 40px; height: 40px;">
+                </span>
+
+                <!-- Content on the right -->
+                <div class="info-box-content ms-2" style="padding-left:5px">
+                    <span class="info-box-text d-block">Ratings</span>
+                    <span class="info-box-number d-block">
+                        @Ratings
+                        <small>Out Of</small>
+                        5
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

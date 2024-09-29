@@ -1,0 +1,179 @@
+﻿@model City_Taxi.ViewModel.DriverViewModel
+@{
+    ViewData["Title"] = "Edit Driver";
+    var branchList = Model.Branches.Select(b => new
+    {
+        BranchID = b.BranchID,
+        Text = $"{b.BranchCode} - {b.BranchName}"
+    }).ToList();
+}
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6"></div>
+            <div class="col-md-6 pt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="title-2 mb-4">Edit Driver</h2>
+                        <hr />
+                        <form method="post" asp-action="UpdateDriver" enctype="multipart/form-data">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <input class="form-control" name="driverId" value="@ViewData["DriverID"]" required hidden readonly>
+                            <div class="row">
+                                <div class="col-md-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="FirstName" class="form-label">First Name</label>
+                                        <input asp-for="FirstName" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="LastName" class="form-label">Last Name</label>
+                                        <input asp-for="LastName" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+94</span>
+                                    <input asp-for="PhoneNumber" class="form-control" required id="phoneNumber" maxlength="9" placeholder="Enter phone number">
+                                    <button id="verifyBtn" type="button" class="btn btn-secondary" style="background-color: orange" onclick="sendOtp()">Verify</button>
+
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="NIC" class="form-label">NIC Number</label>
+                                <input asp-for="NIC" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AccountNumber" class="form-label">Account Number</label>
+                                <input asp-for="AccountNumber" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="BankCode" class="form-label">Bank</label>
+                                <select asp-for="BankCode" class="form-control"
+                                        asp-items="@(new SelectList(Model.Banks, "BankCode", "BankName"))"
+                                        onchange="loadBranches(this.value)" required>
+                                    <option value="">Select a bank</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="BranchID" class="form-label">Branch</label>
+                                <select asp-for="BranchID" class="form-control" id="branchDropdown"
+                                    asp-items="@(new SelectList(branchList, "BranchID", "Text"))" required>
+                                    <option value="">Select a branch</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <img src="@Url.Action("GetDriverImage", "Admin", new { id = @ViewData["DriverID"] })" alt="Driver Image" style="width: 100px; height: auto;" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ImageFile" class="form-label">Upload dealer image</label>
+                                <input asp-for="ImageFile" class="form-control" type="file" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Registered Date</label>
+                                <input name="DateRegistered" id="DateRegistered" value="@ViewData["DateRegistered"]" class="form-control" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input name="username" id="username" class="form-control" value="@ViewData["UserName"]" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input name="password" type="password" class="form-control" placeholder="Leave this empty if no change">
+                            </div>
+                            <div class="d-flex justify-content-evenly">
+                                <button type="submit" class="btn btn-primary flex-grow-1" style="margin-left:0px; margin-right:7px">Edit</button>
+                                <a class="btn btn-danger flex-grow-1" asp-controller="Admin" asp-action="ManageDriver" style="margin-right:0; margin-left:7px">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                // Initialize Select2 on bank and branch dropdowns
+                $('select').select2({
+                    placeholder: 'Select an option',
+                    allowClear: true
+                });
+            });
+            // Clear the username when phone number is edited
+            document.getElementById('phoneNumber').addEventListener('input', function () {
+                document.getElementById('username').value = '';
+                document.getElementById('username').placeholder = 'Verify mobile number to get username';
+            });
+
+            function sendOtp() {
+                const phoneNumber = document.getElementById('phoneNumber').value;
+
+                fetch('/Home/SendOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const otp = prompt("Enter OTP sent to your phone:");
+                            verifyOtp(otp, phoneNumber);
+                        } else {
+                            // Display the error message
+                            alert(data.errorMessage); // Show error message to the user
+                        }
+                    });
+            }
+            function verifyOtp(otp, phoneNumber) {
+                fetch('/Home/VerifyOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ otp: otp, phoneNumber: phoneNumber })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('username').value = "+94" + phoneNumber;
+                            document.getElementById('verifyBtn').textContent = 'Verified'
+                            document.getElementById('verifyBtn').style.backgroundColor = 'green';
+                            document.getElementById('verifyBtn').disabled = true;
+                        } else {
+                            alert("Invalid OTP. Please try again.");
+                        }
+                    });
+            }
+            function loadBranches(bankId) {
+                if (bankId) {
+                    fetch(`/Driver/GetBranchesByBank?bankId=${bankId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const branchDropdown = document.getElementById('branchDropdown');
+                            branchDropdown.innerHTML = '<option value="">Select a branch</option>'; // Clear previous options
+
+                            data.forEach(branch => {
+                                const option = document.createElement('option');
+                                option.value = branch.branchID; // Adjust based on your model
+                                option.textContent = `${branch.branchCode} - ${branch.branchName}`; // Adding hyphen between BranchCode and BranchName
+                                branchDropdown.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear branch dropdown if no bank is selected
+                    document.getElementById('branchDropdown').innerHTML = '<option value="">Select a branch</option>';
+                }
+            }
+        </script>
+    }
+</body>

@@ -1,0 +1,72 @@
+﻿@model List<PassengerCardDetails>
+@{
+    Layout = "~/Views/Passenger/PassengerLayout.cshtml";
+}
+<head>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+
+</head>
+<h2 class="text-center mb-5">Manage Card Details</h2>
+
+<div class="row mb-5">
+    <div class="col">
+        <a class="btn btn-primary" asp-controller="Passenger" asp-action="AddCardDetails" asp-route-pageSource="ManageCardDetailsPage">Add New Card</a>
+    </div>
+</div>
+
+<table id="driversTable" class="table">
+    <thead>
+        <tr>
+            <th>Card Number</th>
+            <th>Card Holders Name</th>
+            <th>Expiration Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var cardDetails in Model)
+            {
+                <tr>
+                    <td>@cardDetails.CardNumber</td>
+                    <td>@cardDetails.CardHolderName</td>
+                    <td>@cardDetails.ExpirationDate</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn  btn-sm" asp-controller="Passenger" asp-action="EditCardDetails" asp-route-id="@cardDetails.CardID"><i class="bi bi-pencil-square"></i></a>
+                        <form method="post" asp-controller="Passenger" asp-action="DeleteCardDetails" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this Card?');">
+                            <input type="hidden" name="cardId" value="@cardDetails.CardID" />
+                            <button type="submit" class="btn  btn-sm"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function () {
+        $('#driversTable').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true
+        });
+    });
+</script>

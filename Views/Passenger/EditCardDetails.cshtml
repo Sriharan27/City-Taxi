@@ -1,0 +1,63 @@
+﻿@model PassengerCardDetails
+@{
+    ViewData["Title"] = "Edit Card Details";
+}
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6 p-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="title-2">Edit Card Details</h2>
+                        <hr />
+                        <form method="post" asp-action="EditCardDetails">
+                            <input asp-for="CardID" name="CardID" required readonly hidden />
+                            <div class="mb-3">
+                                <label asp-for="CardNumber" class="form-label">Card Number</label>
+                                <input asp-for="CardNumber" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="CardHolderName" class="form-label">Card Holder Name</label>
+                                <input asp-for="CardHolderName" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ExpirationDate" class="form-label">Expiry Date (MM/YY)</label>
+                                <input asp-for="ExpirationDate" type="text" class="form-control" placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">CVV</label>
+                                <input name="CVV" class="form-control" maxlength="4" placeholder="Leave Empty If No Change"/>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Add Card</button>
+                                <button type="button" class="btn btn-danger" onclick="history.back()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="display: flex; justify-content: center; align-items: center;">
+                <img src="~/images/editcard.png" alt="Company Logo" style="width: 100%;">
+
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.querySelector('[name="ExpirationDate"]').addEventListener('input', function (e) {
+        let input = e.target.value;
+
+        input = input.replace(/[^0-9\/]/g, '');
+
+        if (input.length === 1 && input > 1) {
+            input = '0' + input;
+        }
+
+        if (input.length === 2 && !input.includes('/')) {
+            input += '/';
+        }
+
+        e.target.value = input.substring(0, 5);
+    });
+</script>

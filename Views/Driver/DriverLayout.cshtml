@@ -1,0 +1,106 @@
+﻿@{
+    var username = Context.Session.GetString("Username") ?? "Guest";
+    var usertype = Context.Session.GetString("UserType") ?? "Guest";
+    var userId = Context.Session.GetInt32("UserID") ?? 0;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+
+</head>
+<body>
+    <div class="wrapper d-flex align-items-stretch">
+        <nav id="sidebar">
+            <div class="custom-menu">
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                </button>
+            </div>
+            <div class="img bg-wrap text-center py-4" style="background-image: url('/images/tortoise-shell.svg');">
+                <div class="user-logo">
+                    <div class="img" style="width: 100px; height: 100px; overflow: hidden; border-radius: 50%;">
+                        @if (userId != 0)
+                        {
+                            <img src="@Url.Action("GetDriverImage", "Admin", new { id = userId })" alt="Driver Image"
+                                 style="width: 100%; height: 100%; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span>No Image</span>
+                        }
+                    </div>
+                    <h3>@username </h3>
+                    <h6>@usertype</h6>
+                </div>
+
+                <div class="status-select">
+                    <label for="status" class="sr-only">Status</label>
+                    <select id="status" class="form-control" onchange="setStatus(this.value)" style="width: 60%; background: wheat; margin: 0px 10px;">
+                        <option value="AVAILABLE" selected>AVAILABLE</option>
+                        <option value="BUSY">BUSY</option>
+                    </select>
+                </div>
+            </div>
+            <ul class="list-unstyled components mb-5">
+                <li class="active">
+                    <a asp-controller="Driver" asp-action="Index"><span class="bi bi-geo-alt mr-3"></span> Trips</a>
+                </li>
+                <li>
+                    <a asp-controller="Driver" asp-action="ManageVehicle"><span class="bi bi-car-front mr-3"></span> Manage Vehicles</a>
+                </li>
+                <li>
+                    <a asp-controller="Admin" asp-action="TripReport"><span class="bi bi-file-earmark-text mr-3"></span> Trip Report</a>
+                </li>
+                <li>
+                    <a asp-controller="Driver" asp-action="Logout"><span class="bi bi-box-arrow-right mr-3"></span> Sign Out</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content" class="p-4 p-md-5 pt-5" style="overflow-x:auto">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    @RenderSection("Scripts", required: false)
+    <script src="~/js/popper.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/main.js"></script>
+
+    <script>
+        function setStatus(statusValue) {
+            $.ajax({
+                url: '@Url.Action("UpdateDriverStatus", "Driver")',
+                type: 'POST',
+                data: {
+                    status: statusValue,
+                    userId: @userId 
+                },
+                success: function (response) {
+                    alert("Status updated successfully.");
+                },
+                error: function (xhr, status, error) {
+                    alert("Error updating status: " + error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

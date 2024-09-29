@@ -1,0 +1,201 @@
+﻿@model Reservation
+
+@{
+    var userRole = Context.Session.GetString("UserType");
+    if (userRole == "Admin")
+    {
+        Layout = "~/Views/Admin/AdminLayout.cshtml";
+    }
+    else if (userRole == "Passenger")
+    {
+        Layout = "~/Views/Passenger/PassengerLayout.cshtml";
+    }
+    else if (userRole == "Driver")
+    {
+        Layout = "~/Views/Driver/DriverLayout.cshtml";
+    }
+
+    var pickupCoords = Model.PickupLocation.Split(',').Select(double.Parse).ToArray();
+    var dropoffCoords = Model.DropoffLocation.Split(',').Select(double.Parse).ToArray();
+
+    var pickupLat = pickupCoords[0];
+    var pickupLng = pickupCoords[1];
+    var dropoffLat = dropoffCoords[0];
+    var dropoffLng = dropoffCoords[1];
+}
+<input type="hidden" name="Reservation-ID" id="Reservation-ID" value="@Model.ReservationID" disabled />
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Column: Map Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Trip Route</h4>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 400px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Driver Info Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Ride Information</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Driver Details</h5>
+                    <hr />
+                    @if (Model != null)
+
+                    {
+                        <div class="row">
+                            <!-- Driver Image -->
+                            <div class="col-12 col-md-4 mb-3 text-center">
+                                <div class="img" style="width: 100px; height: 100px; overflow: hidden; border-radius: 50%;">
+                                    @if (Model.Driver.Image != null)
+
+                                    {
+                                        <img src="@Url.Action("GetDriverImage", "Admin", new { id = Model.DriverID })" alt="Driver Image"
+                                             style="width: 100%; height: 100%; object-fit: cover;" />
+                                    }
+
+                                    else
+
+                                    {
+                                        <span>No Image</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Driver Info -->
+                            <div class="col-12 col-md-8 mb-3">
+                                <p><strong>Driver Name:</strong> @($"{Model.Driver.FirstName} {Model.Driver.LastName}")</p>
+                                <p><strong>Driver Phone Number:</strong> @Model.Driver.PhoneNumber</p>
+                                <p><strong>Vehicle:</strong> @($"{Model.Vehicle.VehicleMake} {Model.Vehicle.VehicleModel}")</p>
+                                <p><strong>Vehicle Number:</strong> @Model.Vehicle.VehicleNumberPlate</p>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <h5>Trip Details</h5>
+                        <hr />
+                        <div class="row">
+                            <!-- Trip Status -->
+                            <div class="col-12 col-md-4 mb-3">
+                                <p><strong>Trip Status:</strong> <span id="trip-status">@Model.ReservationStatus</span></p>
+                            </div>
+
+                            <!-- Trip Distance -->
+                            <div class="col-12 col-md-4 mb-3">
+                                <p><strong>Trip Distance:</strong> @Model.TripDistance km</p>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="col-12 col-md-4 mb-3">
+                                <p><strong>Payment Method:</strong> @Model.PaymentType</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Trip Fare -->
+                            <div class="col-12 col-md-4 mb-3">
+                                <p><strong>Trip Fare:</strong> Rs @Model.TripPrice.ToString("F2")</p>
+                            </div>
+
+                            <!-- Trip Rating -->
+                            <div class="col-12 col-md-8 mb-3">
+                                <p>
+                                    <strong>Trip Rating: </strong>
+                                    <span>
+                                        @{
+                                            var ratingValue = ViewData["DriverID"] as int? ?? 0;
+
+                                            for (int i = 1; i <= 5; i++)
+
+                                            {
+
+                                                if (i <= ratingValue)
+
+                                                {
+                                                    <span class="fa fa-star" style="color: gold;"></span>
+                                                }
+
+                                                else
+
+                                                {
+                                                    <span class="fa fa-star" style="color: lightgray;"></span>
+                                                }
+
+                                            }
+                                        }
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    }
+
+                    else
+
+                    {
+                        <p>No driver information available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["Key"]&libraries=places,geometry&callback=initMap" async defer></script>
+
+<script>
+    let checkReservationStatusInterval, TripStartedDisplayMessage;
+    
+    // Initialize and add the map
+    function initMap() {
+        // Set the locations using model data
+        var pickupLocation = { lat: @pickupLat, lng: @pickupLng }; // Pickup location from model
+        var dropoffLocation = { lat: @dropoffLat, lng: @dropoffLng }; // Dropoff location from model
+
+        // Create the map
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: pickupLocation // Center the map on the pickup location
+        });
+
+        // Create the markers for pickup and dropoff
+        var pickupMarker = new google.maps.Marker({
+            position: pickupLocation,
+            map: map,
+            title: 'Pickup Location'
+        });
+
+        var dropoffMarker = new google.maps.Marker({
+            position: dropoffLocation,
+            map: map,
+            title: 'Dropoff Location'
+        });
+
+        // Directions service and renderer
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        // Calculate and display the route
+        directionsService.route({
+            origin: pickupLocation,
+            destination: dropoffLocation,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function (response, status) {
+            if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+            } else {
+                alert('Directions request failed due to ' + status);
+            }
+        });
+    }
+</script>
+

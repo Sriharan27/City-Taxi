@@ -1,0 +1,54 @@
+﻿@model Vehicle
+@{
+    ViewData["Title"] = "Edit Vehicle";
+    var driverId = Context.Session.GetInt32("UserID");
+    var vehicleTypes = (IEnumerable<City_Taxi.Models.VehicleTypes>)ViewData["VehicleTypes"];
+}
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6"></div>
+            <div class="col-md-6 p-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="title-2 mb-4">Edit Vehicle</h2>
+                        <hr />
+                        <form method="post" asp-action="EditVehicle" enctype="multipart/form-data">
+                            <input asp-for="VehicleID" class="form-control" required readonly hidden>
+                            <input asp-for="DriverID" class="form-control" required readonly hidden>
+                            <div class="mb-3">
+                                <label asp-for="VehicleTypeID" class="form-label">Vehicle Type</label>
+                                <select asp-for="VehicleTypeID" class="form-select" asp-items="@(new SelectList(vehicleTypes, "VehicleTypeID", "VehicleType"))" required>
+                                    <option value="">Select Vehicle Type</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="VehicleMake" class="form-label">Vehicle Make</label>
+                                <input asp-for="VehicleMake" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="VehicleModel" class="form-label">Vehicle Model</label>
+                                <input asp-for="VehicleModel" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="VehicleNumberPlate" class="form-label">Vehicle Number Plate</label>
+                                <input asp-for="VehicleNumberPlate" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">Status</label>
+                                <select class="form-select" asp-for="Status">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-evenly">
+                                <button type="submit" class="btn btn-primary flex-grow-1" style="margin-left:0px; margin-right:7px">Edit Vehicle</button>
+                                <a class="btn btn-danger flex-grow-1" asp-controller="Driver" asp-action="ManageVehicle" style="margin-right:0; margin-left:7px">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

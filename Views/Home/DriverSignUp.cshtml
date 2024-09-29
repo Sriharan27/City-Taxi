@@ -1,0 +1,167 @@
+﻿@model City_Taxi.ViewModel.DriverViewModel
+@{
+    ViewData["Title"] = "Driver Sign Up";
+}
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6" style="padding:40px;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-5">
+                            <img src="~/images/ctlogo.png" alt="Company Logo" style="max-width: 150px;">
+                        </div>
+                        <h2 class="title-2 mb-4">Sign Up</h2>
+                        <hr />
+                        <form method="post" asp-action="DriverSignUp" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6  mb-3">
+                                    <label asp-for="FirstName" class="form-label">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" required>
+                                </div>
+                                <div class="col-md-6  mb-3">
+                                    <label asp-for="LastName" class="form-label">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <       <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">+94</span>
+                                        <input asp-for="PhoneNumber" class="form-control" required id="phoneNumber" maxlength="9" placeholder="Enter phone number">
+                                        <button id="verifyBtn" type="button" class="btn btn-secondary" style="background-color: orange" onclick="sendOtp()">Verify</button>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="NIC" class="form-label">NIC Number</label>
+                                    <input asp-for="NIC" class="form-control" required>
+                                </div>
+
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AccountNumber" class="form-label">Account Number</label>
+                                <input asp-for="AccountNumber" class="form-control" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="BankCode" class="form-label">Bank</label>
+                                    <select asp-for="BankCode" class="form-control"
+                                            asp-items="@(new SelectList(Model.Banks, "BankCode", "BankName"))"
+                                            onchange="loadBranches(this.value)" required>
+                                        <option value="">Select a bank</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="BranchID" class="form-label">Branch</label>
+                                    <select asp-for="BranchID" class="form-control" id="branchDropdown" required>
+                                        <option value="">Select a branch</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ImageFile" class="form-label">Upload a picture of you</label>
+                                <input asp-for="ImageFile" class="form-control" type="file" accept="image/*" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input name="username" id="username" placeholder="Verify mobile number to get username" class="form-control" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input name="password" type="password" class="form-control" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-outline">Sign Up</button>
+                                <button type="button" class="btn btn-danger" onclick="history.back()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="display: flex; justify-content: center; align-items: center;">
+                <img src="~/images/driverbg.png" alt="Company Logo" style="width: 100%;">
+
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 on bank and branch dropdowns
+                $('select').select2({
+                    placeholder: 'Select an option',
+                    allowClear: true
+                });
+            });
+            function sendOtp() {
+                const phoneNumber = document.getElementById('phoneNumber').value;
+
+                fetch('/Home/SendOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const otp = prompt("Enter OTP sent to your phone:");
+                        verifyOtp(otp, phoneNumber);
+                    } else {
+                        // Display the error message
+                        alert(data.errorMessage); // Show error message to the user
+                    }
+                });
+            }
+            function verifyOtp(otp, phoneNumber) {
+                fetch('/Home/VerifyOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ otp: otp, phoneNumber: phoneNumber })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('username').value = "+94"+phoneNumber;
+                            document.getElementById('verifyBtn').textContent = 'Verified'
+                            document.getElementById('verifyBtn').style.backgroundColor = 'green';
+                            document.getElementById('verifyBtn').disabled = true;
+                        } else {
+                            alert("Invalid OTP. Please try again.");
+                        }
+                    });
+            }
+            function loadBranches(bankId) {
+                if (bankId) {
+                    fetch(`/Driver/GetBranchesByBank?bankId=${bankId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const branchDropdown = document.getElementById('branchDropdown');
+                            branchDropdown.innerHTML = '<option value="">Select a branch</option>'; // Clear previous options
+                    
+                            data.forEach(branch => {
+                                const option = document.createElement('option');
+                                option.value = branch.branchID; // Adjust based on your model
+                                option.textContent = `${branch.branchCode} - ${branch.branchName}`; // Adding hyphen between BranchCode and BranchName
+                                branchDropdown.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear branch dropdown if no bank is selected
+                    document.getElementById('branchDropdown').innerHTML = '<option value="">Select a branch</option>';
+                }
+            }
+        </script>
+    }
+</body>

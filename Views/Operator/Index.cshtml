@@ -1,0 +1,135 @@
+﻿@model Passenger
+@{
+    ViewData["Title"] = "Create Passenger";
+
+    Layout = "~/Views/Operator/OperatorLayout.cshtml";
+
+}
+<body>
+    <div class="container-fluid">
+        <div class="row d-flex align-items-center justify-content-center">
+
+            <div class="col-md-8 p-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="title-2 mb-4">Create Passenger</h2>
+                        <hr />
+                        <form method="post" asp-action="CreatePassenger">
+                            <div class="mb-3">
+                                <label asp-for="FirstName" class="form-label">First Name</label>
+                                <input asp-for="FirstName" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="LastName" class="form-label">Last Name</label>
+                                <input asp-for="LastName" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+94</span>
+                                    <input asp-for="PhoneNumber" class="form-control" maxlength="9" required id="phoneNumber">
+                                    <button id="verifyBtn" type="button" class="btn btn-secondary" style="background-color : orange" onclick="sendOtp()">Verify</button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input name="username" id="username" class="form-control" placeholder="Verify mobile number to get username" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input name="password" type="password" class="form-control" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" style="width:100%">Sign Up</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <style>
+        .form-control::-webkit-input-placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        .form-control:-ms-input-placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        .form-control::-ms-input-placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        .form-control::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        .form-control:disabled, .form-control[readonly] {
+            background-color: #e9ecef;
+            opacity: 1;
+        }
+
+        select.form-control:focus::-ms-value {
+            color: #495057;
+            background-color: #fff;
+        }
+
+        .form-control-file,
+        .form-control-range {
+            display: block;
+            width: 100%;
+        }
+    </style>
+    <script>
+        function sendOtp() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            fetch('/Home/SendOtp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phoneNumber: phoneNumber })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const otp = prompt("Enter OTP sent to your phone:");
+                        verifyOtp(otp, phoneNumber);
+                    } else {
+                        alert(data.errorMessage);
+                    }
+                });
+        }
+        function verifyOtp(otp, phoneNumber) {
+            fetch('/Home/VerifyOtp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp, phoneNumber: phoneNumber })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('username').value = "+94" + phoneNumber;
+                        document.getElementById('verifyBtn').textContent = 'Verified'
+                        document.getElementById('verifyBtn').style.backgroundColor = 'green';
+                        document.getElementById('verifyBtn').disabled = true;
+                    } else {
+                        alert("Invalid OTP. Please try again.");
+                    }
+                });
+        }
+    </script>
+</body>
