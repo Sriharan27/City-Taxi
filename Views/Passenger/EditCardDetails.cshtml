@@ -11,7 +11,7 @@
                         <h2 class="title-2">Edit Card Details</h2>
                         <hr />
                         <form method="post" asp-action="EditCardDetails">
-                            <input asp-for="CardID" name="CardID" required readonly hidden />
+                            <input asp-for="CardID" name="CardID" required readonly hidden /> @* Car ID *@
                             <div class="mb-3">
                                 <label asp-for="CardNumber" class="form-label">Card Number</label>
                                 <input asp-for="CardNumber" class="form-control" required />

@@ -2,12 +2,13 @@
 @{
     ViewData["Title"] = "Add Card Details";
     var passengerId = Context.Session.GetInt32("UserID") ?? 0;
-    var pageSource = Context.Request.Query["pageSource"].ToString();  // Get the page source from query string
-
+    var pageSource = Context.Request.Query["pageSource"].ToString();
+    
 }
 <body>
     <div class="container-fluid">
         <div class="row justify-content-center">
+            <!-- Added card details -->
       
             <div class="col-md-6 p-5">
                 <div class="card">
