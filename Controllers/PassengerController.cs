@@ -379,7 +379,7 @@ namespace City_Taxi.Controllers
                           $"Driver Phone Number: {reservation.Driver.PhoneNumber}\n\n" +
                           $"Vehicle: {reservation.Vehicle.VehicleMake} {reservation.Vehicle.VehicleModel}\n\n" +
                           $"Vehicle Number: {reservation.Vehicle.VehicleNumberPlate}\n\n" +
-                          $"Trip Distance: {reservation.TripDistance}\n\n" +
+                          $"Trip Distance: {reservation.TripDistance} Km\n\n" +
                           $"Trip Fare: {reservation.TripPrice.ToString("F2")}";
 
             // Send the SMS
