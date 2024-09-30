@@ -1,6 +1,7 @@
 ﻿@model Vehicle
 @{
     ViewData["Title"] = "Edit Vehicle";
+           <!-- Edit card details -->
     var driverId = Context.Session.GetInt32("UserID");
     var vehicleTypes = (IEnumerable<City_Taxi.Models.VehicleTypes>)ViewData["VehicleTypes"];
 }
