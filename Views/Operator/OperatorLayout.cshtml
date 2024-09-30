@@ -24,7 +24,7 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6NXqjco0YIP_PWjzcpd37aihtPAugAVg&libraries=places,geometry&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["Key"]&libraries=places,geometry&callback=initMap" async defer></script>
 
 </head>
 <body>
@@ -43,7 +43,7 @@
             </div>
             <ul class="list-unstyled components mb-5">
                 <li class="active">
-                    <a asp-controller="Passenger" asp-action="Index"><span class="fa fa-map-marker mr-3"></span> Reserve a Ride</a>
+                    <a asp-controller="Operator" asp-action="Index"><span class="fa fa-map-marker mr-3"></span> Reserve a Ride</a>
                 </li>
                 <li>
                     <a asp-controller="Admin" asp-action="Logout"><span class="bi bi-box-arrow-right mr-3"></span> Sign Out</a>
